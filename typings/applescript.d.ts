@@ -5,8 +5,82 @@ declare namespace Application {
 type App = {
     includeStandardAdditions: boolean;
     doShellScript: (script: string) => string;
+    /**
+     * Display Dialog
+     * 
+     * Use the `display dialog` command, provided by the Standard Additions scripting addition to show a basic dialog message to the user.
+     * The result of the command is the button the user clicked in the dialog.
+     * 
+     * Use the display dialog command’s optional `default answer parameter` to collect text, such as a username or email address, as your script runs.
+     *      
+     * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/DisplayDialogsandAlerts.html|More}
+     */
     displayDialog: typeof DisplayDialog;
+    /**
+     * Display notification
+     * 
+     * Use the `display notification` command to show notifications, such as status updates as files are processed.
+     * Notifications are shown as alerts or banners, depending on the user’s settings in System Preferences > Notifications.
+     * 
+     * To show a notification, provide the display notification command with a string to display.
+     * Optionally, provide values for the with `title`, `subtitle`, and `sound name` parameters to provide additional information and an audible alert when the notification appears.
+     * 
+     * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/DisplayNotifications.html|More}
+     */
     displayNotification: DisplayNotification;
+    /**
+     * Choose file
+     * 
+     * Use the `choose file` command to prompt the user to select a file.
+     * 
+     * If your script requires specific types of files for processing, you can use the choose file command’s optional of `type` parameter to provide a list of acceptable types.
+     * Types may be specified as extension strings without the leading period (such as "jpg" or "png") or as uniform type identifiers (such as "public.image" or "com.apple.iwork.pages.sffpages").
+     * 
+     * To let the user choose more than one file, include the choose file command’s optional `multiple selections allowed` parameter.
+     * 
+     * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/PromptforaFileorFolder.html|More}
+     */
+    chooseFile: ChooseFile;
+    /**
+     * Choose folder
+     * 
+     * Use the `choose folder` command to prompt the user to select a folder, such as an output folder or folder of images to process.
+     * 
+     * To let the user choose more than one folder, include the choose folder command’s optional `multiple selections allowed` parameter.
+     * 
+     * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/PromptforaFileorFolder.html|More}
+     */
+    chooseFolder: ChooseFolder;
+    /**
+     * Choose file name
+     * 
+     * Use the `choose file` name command to display a save dialog that lets the user enter a file name and choose an output folder.
+     * The result of the choose file name command is a path to a potential file. This file may or may not already exist.
+     * 
+     * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/PromptforaFileName.html|More}
+     */
+    chooseFileName: ChooseFileName;
+    /**
+     * Choose from list
+     * 
+     * Use the `choose from list` command to prompt the user to select from a list of strings.
+     * 
+     * The choose from list command can optionally let the user choose multiple items by setting the `multiple selections allowed` parameter to true.
+     * For this reason, the result of the command is always a `list` of selected strings.
+     * This list may be empty if the `empty selection allowed` parameter has been specified and the user dismissed the dialog without making a selection.
+     * 
+     * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/PromptforaChoicefromaList.html|More}
+     */
+    chooseFromList: chooseFromList;
+    /**
+     * Choose color
+     * 
+     * Use `choose color` command to ask the user to select a color from a color picker dialog.
+     * The command accepts an optional `default color` parameter, and produces an RGB color value as its result.
+     * 
+     * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/PromptforaColor.html|More}
+     */
+    chooseColor: ChooseColor
     say: Say;
 }
 
@@ -51,25 +125,19 @@ type DisplayDialogOpts = {
     defaultAnswer?: string;
 }
 
-/**
- * Display Dialog
- * 
- * Use the display dialog command, provided by the Standard Additions scripting addition to show a basic dialog message to the user. The result of the command is the button the user clicked in the dialog.
- * 
- * @param text - Text to display
- * @param options - Display dialog options 
- */
-declare function DisplayDialog<T>(text: string, options?: DisplayDialogOpts & { defaultAnswer?: T }): {
-    buttonReturned: DialogButton;
+declare function DisplayDialog<T>(text: string, options?: DisplayDialogOpts & { defaultAnswer?: T }): T extends string ? {
+    buttonReturned: string;
+    textReturned: string;
+} : {
+    buttonReturned: string;
 }
-//  & T extends string ? {
-//     textReturned: string;
-// } : {}
 
 /**
  * Progress
  * 
  * For script apps, this progress reporting takes the form of a dialog window containing a progress bar, descriptive text, and a Stop button.
+ * 
+ * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/DisplayProgress.html|More}
  */
 declare namespace Progress {
     /**
@@ -110,7 +178,7 @@ type NotificationOpts = {
     soundName?: NotificationSound;
 }
 
-type DisplayNotification = (message: string, options: NotificationOpts) => void;
+type DisplayNotification = (message: string, options?: NotificationOpts) => void;
 
 declare enum SayUsing {
     Alex = 'Alex',
@@ -124,3 +192,37 @@ type SayOpts = {
 }
 
 type Say = (message: string, options: SayOpts) => void;
+
+type ChooseFileOpts = {
+    withPrompt?: string;
+    ofType?: string[];
+    multipleSelectionsAllowed?: boolean;
+}
+
+type ChooseFile = (options?: ChooseFileOpts) => string[]
+
+type ChooseFolder = (options?: Omit<ChooseFileOpts, 'ofType'>) => string[]
+
+type ChooseFileNameOpts = {
+    withPrompt?: string;
+}
+
+type ChooseFileName = (options?: ChooseFileNameOpts) => string
+
+type ChoicesList = string[]
+
+type ChooseFromListOpts = {
+    withPrompt?: string;
+    defaultItems?: string;
+    emptySelectionsAllowed?: boolean;
+}
+
+type chooseFromList = (choices: ChoicesList, options?: ChooseFromListOpts) => string | false
+
+type Color = [number, number, number]
+
+type ChooseColorOpts = {
+    defaultColor?: Color;
+}
+
+type ChooseColor = (options?: ChooseColorOpts) => Color;

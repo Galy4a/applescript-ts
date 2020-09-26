@@ -5,13 +5,27 @@ const { buttonReturned } = app.displayDialog('Нажмите одну из кн�
     buttons: ['Первая', 'Вторая'],
 })
 
-app.displayDialog(`Вы нажали кнопку "${buttonReturned}"`);
+app.displayNotification(`Вы нажали кнопку "${buttonReturned}"`);
 
 Progress.description = 'Строка прогресса';
-Progress.totalUnitCount = 100;
+Progress.totalUnitCount = 10;
 
-for(let i = 0; i <=100; i++) {
+for(let i = 0; i <=10; i++) {
     Progress.completedUnitCount = i;
 
     delay(0.1);
 }
+
+const files = app.chooseFile();
+
+app.displayDialog(typeof files);
+
+const choose = app.chooseFromList(['1', '2', '3'], {
+    withPrompt: 'Выберите один из выриантов'
+});
+
+app.displayDialog(`Вы выбрали: ${choose}`);
+
+const color = app.chooseColor();
+
+app.displayDialog(color.toString());
