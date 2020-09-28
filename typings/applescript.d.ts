@@ -40,7 +40,7 @@ type App = {
      * 
      * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/PromptforaFileorFolder.html|More}
      */
-    chooseFile: ChooseFile;
+    chooseFile: typeof ChooseFile;
     /**
      * Choose folder
      * 
@@ -50,7 +50,7 @@ type App = {
      * 
      * {@link https://developer.apple.com/library/archive/documentation/LanguagesUtilities/Conceptual/MacAutomationScriptingGuide/PromptforaFileorFolder.html|More}
      */
-    chooseFolder: ChooseFolder;
+    chooseFolder: typeof ChooseFolder;
     /**
      * Choose file name
      * 
@@ -199,9 +199,9 @@ type ChooseFileOpts = {
     multipleSelectionsAllowed?: boolean;
 }
 
-type ChooseFile = (options?: ChooseFileOpts) => string[]
+declare function ChooseFile<T> (options?: ChooseFileOpts & { multipleSelectionsAllowed?: T }): T extends true ? string[] : string;
 
-type ChooseFolder = (options?: Omit<ChooseFileOpts, 'ofType'>) => string[]
+declare function  ChooseFolder<T> (options?: Omit<ChooseFileOpts, 'ofType'> & { multipleSelectionsAllowed?: T }): T extends true ? string[] : string;
 
 type ChooseFileNameOpts = {
     withPrompt?: string;
@@ -217,7 +217,7 @@ type ChooseFromListOpts = {
     emptySelectionsAllowed?: boolean;
 }
 
-type chooseFromList = (choices: ChoicesList, options?: ChooseFromListOpts) => string | false
+type chooseFromList = (choices: ChoicesList, options?: ChooseFromListOpts) => string[] | false
 
 type Color = [number, number, number]
 
